@@ -96,11 +96,13 @@ def handle_email_verification(user):
         raise EmailVerificationError
     except DatabaseError as db_error:
         # Token failed to save
-        logger.exception(f"Database error: {db_error}")
+        logger.exception(f"Database error: {db_error}") # Trace failed queries
         raise EmailVerificationError
 
 
 def verify_token(token):
+    if not token:
+        raise ValidationError({"error": "Token is required."})
     hashed_token = sha512(token.encode("utf-8")).hexdigest()
     token_obj = Token.objects.select_related("user").filter(
         token=hashed_token,
