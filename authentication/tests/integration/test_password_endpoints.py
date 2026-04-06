@@ -11,7 +11,7 @@ class SignUpTestCase(APITestCase):
     def setUp(self):
         self.email = "new_user@gmail.com"
         self.password = "newuser123"
-        self.url = reverse("sign-up")
+        self.url = reverse("signup")
 
     def test_without_data(self):
         """Test with no data"""
