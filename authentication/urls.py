@@ -1,7 +1,7 @@
 from django.urls import path
 from rest_framework_simplejwt.views import TokenRefreshView
 
-from .views import (
+from authentication.views import (
     SignUpEndpoint,
     LoginEndpoint,
     LogoutEndpoint,
@@ -15,6 +15,6 @@ urlpatterns = [
     path("login/", LoginEndpoint.as_view(), name="login"),
     path("logout/", LogoutEndpoint.as_view(), name="logout"),
     path("verify/", VerifyEmailEndpoint.as_view(), name="verify"),
-    path("resend-verification/", ResendVerificationEndpoint.as_view(), name="send_verification"),
+    path("resend-verification/", ResendVerificationEndpoint.as_view(), name="resend_verification"),
     path("get-access-token/", TokenRefreshView.as_view(), name="get-access-token"),
 ]
