@@ -64,7 +64,9 @@ class User(AbstractBaseUser, PermissionsMixin):
 class Token(models.Model):
     class Purpose(models.TextChoices):
         VERIFICATION = "verification"
-        AUTHENTICATION = "authentication"
+        PASSWORD_RESET = "password_reset"
+        EMAIL_CHANGE = "email_change"
+        ACCOUNT_DELETION = "account_deletion"
 
     id = models.UUIDField(default=uuid.uuid7, editable=False, primary_key=True)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
