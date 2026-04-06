@@ -1,3 +1,7 @@
+def normalize_email(email):
+    return email.strip().lower()
+
+
 def get_client_ip(request):
     """Retrieves the client ip address of the current request."""
     x_forwarded_for = request.META.get("HTTP_X_FORWARDED_FOR")
