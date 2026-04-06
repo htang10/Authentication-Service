@@ -48,6 +48,7 @@ REST_FRAMEWORK = {
         "rest_framework.permissions.IsAuthenticated",
     ],
     "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
+    "EXCEPTION_HANDLER": "utils.exception_handler.custom_exception_handler",
 }
 
 INSTALLED_APPS = [
@@ -59,6 +60,7 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     # In-house
     "authentication",
+    "utils",
     # Third-party
     "rest_framework",
     "rest_framework_simplejwt.token_blacklist",
