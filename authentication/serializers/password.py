@@ -1,8 +1,9 @@
 from rest_framework import serializers
 from rest_framework.authentication import authenticate
 
-from authentication.exceptions import InvalidCredentials, EmailNotVerified
+from authentication.exceptions import EmailNotVerified, InvalidCredentials
 from authentication.models import User
+from authentication.services import create_user
 from authentication.utils import normalize_email
 
 
@@ -13,6 +14,7 @@ class SignUpSerializer(serializers.ModelSerializer):
     Creates new user account if email has not been registered yet
     Hashes password before storing user in db
     """
+
     class Meta:
         model = User
         fields = ["email", "password", "display_name", "created_at", "updated_at"]
@@ -21,18 +23,12 @@ class SignUpSerializer(serializers.ModelSerializer):
             "password": {
                 "min_length": 8,
                 "write_only": True,
-                "style": {"input_type": "password"}
+                "style": {"input_type": "password"},
             }
         }
 
     def create(self, validated_data):
-        password = validated_data.pop("password")
-
-        user = User.objects.create(**validated_data)
-        user.set_password(password)
-        user.save()
-
-        return user
+        return create_user(**validated_data)
 
 
 class LoginSerializer(serializers.Serializer):
@@ -41,18 +37,13 @@ class LoginSerializer(serializers.Serializer):
 
     Checks for existing verified email and correct password
     """
+
     email = serializers.EmailField(max_length=255)
-    password = serializers.CharField(
-        write_only=True,
-        style={"input_type": "password"}
-    )
+    password = serializers.CharField(write_only=True, style={"input_type": "password"})
 
     def validate(self, data):
         email = normalize_email(data["email"])
-        user = authenticate(
-            username=email,
-            password=data["password"]
-        )
+        user = authenticate(username=email, password=data["password"])
 
         if not user:
             raise InvalidCredentials
