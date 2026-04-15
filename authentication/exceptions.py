@@ -28,4 +28,3 @@ class EmailAlreadyVerified(APIException):
 
 class EmailVerificationError(Exception):
     pass
-

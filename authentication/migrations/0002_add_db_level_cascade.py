@@ -6,8 +6,8 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('authentication', '0001_initial'),
-        ('token_blacklist', '0013_alter_blacklistedtoken_options_and_more')
+        ("authentication", "0001_initial"),
+        ("token_blacklist", "0013_alter_blacklistedtoken_options_and_more"),
     ]
 
     operations = [
@@ -79,5 +79,5 @@ class Migration(migrations.Migration):
             REFERENCES token_blacklist_outstandingtoken(id)
             DEFERRABLE INITIALLY DEFERRED;
         """,
-        )
+        ),
     ]

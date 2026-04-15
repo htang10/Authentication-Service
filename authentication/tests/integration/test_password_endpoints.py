@@ -28,7 +28,7 @@ class SignUpTestCase(APITestCase):
             "invalid_email@.com",
             "invalid_email.domain.com",
             "invalid_email@domain..com",
-            "invalid email@domain.com"
+            "invalid email@domain.com",
         ]
 
         for email in invalid_emails:
@@ -99,7 +99,7 @@ class LoginTestCase(APITestCase):
             "invalid_email@.com",
             "invalid_email.domain.com",
             "invalid_email@domain..com",
-            "invalid email@domain.com"
+            "invalid email@domain.com",
         ]
 
         for email in invalid_emails:

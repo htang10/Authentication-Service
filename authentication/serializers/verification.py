@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from authentication.exceptions import EmailNotFound, EmailAlreadyVerified
+from authentication.exceptions import EmailAlreadyVerified, EmailNotFound
 from authentication.models import User
 from authentication.utils import normalize_email
 
@@ -11,6 +11,7 @@ class ResendVerificationSerializer(serializers.Serializer):
 
     Only send verification to an existing and unverified account
     """
+
     email = serializers.EmailField(max_length=255)
 
     def validate(self, data):

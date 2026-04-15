@@ -7,4 +7,5 @@ class LogoutSerializer(serializers.Serializer):
 
     Blacklists refresh token after logout
     """
+
     refresh = serializers.CharField()

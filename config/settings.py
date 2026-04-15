@@ -14,8 +14,8 @@ import os
 from datetime import timedelta
 from pathlib import Path
 
-from dotenv import load_dotenv
 from celery.schedules import crontab
+from dotenv import load_dotenv
 
 load_dotenv(verbose=True)
 
@@ -64,7 +64,7 @@ INSTALLED_APPS = [
     # Third-party
     "rest_framework",
     "rest_framework_simplejwt.token_blacklist",
-    "drf_spectacular"
+    "drf_spectacular",
 ]
 
 MIDDLEWARE = [
