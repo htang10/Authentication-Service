@@ -10,7 +10,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     id = models.UUIDField(default=uuid.uuid7, editable=False, primary_key=True)
 
     # identity
-    email = models.EmailField(max_length=255, unique=True) # Required
+    email = models.EmailField(max_length=255, unique=True)  # Required
 
     # UI
     display_name = models.CharField(max_length=255, default="")
@@ -70,7 +70,7 @@ class Token(models.Model):
 
     id = models.UUIDField(default=uuid.uuid7, editable=False, primary_key=True)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-    token = models.CharField(max_length=128) # hashed
+    token = models.CharField(max_length=128)  # hashed
     purpose = models.CharField(max_length=32, choices=Purpose)
     created_at = models.DateTimeField(auto_now_add=True)
     expires_at = models.DateTimeField(default="")

@@ -1,7 +1,4 @@
-from .password import SignUpEndpoint, LoginEndpoint
-
-from .verification import VerifyEmailEndpoint, ResendVerificationEndpoint
-
-from .password_management import ResetPasswordEndpoint
-
 from .logout import LogoutEndpoint
+from .password import LoginEndpoint, SignUpEndpoint
+from .password_management import ForgotPasswordEndpoint
+from .verification import ResendVerificationEndpoint, VerifyEmailEndpoint

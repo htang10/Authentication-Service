@@ -6,13 +6,21 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('authentication', '0002_add_db_level_cascade'),
+        ("authentication", "0002_add_db_level_cascade"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='token',
-            name='purpose',
-            field=models.CharField(choices=[('verification', 'Verification'), ('password_reset', 'Password Reset'), ('email_change', 'Email Change'), ('account_deletion', 'Account Deletion')], max_length=32),
+            model_name="token",
+            name="purpose",
+            field=models.CharField(
+                choices=[
+                    ("verification", "Verification"),
+                    ("password_reset", "Password Reset"),
+                    ("email_change", "Email Change"),
+                    ("account_deletion", "Account Deletion"),
+                ],
+                max_length=32,
+            ),
         ),
     ]

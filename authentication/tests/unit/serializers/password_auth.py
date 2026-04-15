@@ -1,8 +1,7 @@
 from django.test import TestCase
 
-from authentication.serializers import SignUpSerializer, LoginSerializer
 from authentication.models import User
-
+from authentication.serializers import LoginSerializer, SignUpSerializer
 from authentication.tests.unit.serializers.email import EmailFieldTestMixin
 
 
@@ -35,7 +34,9 @@ class SignUpSerializerTestCase(EmailFieldTestMixin, TestCase):
 
     def test_valid_data(self):
         """Test serializer accepts valid data"""
-        serializer = self.serializer_class(data=self.get_payload(display_name="Read-only"))
+        serializer = self.serializer_class(
+            data=self.get_payload(display_name="Read-only")
+        )
 
         self.assertTrue(serializer.is_valid())
         user = serializer.save()
@@ -62,7 +63,11 @@ class LoginSerializerTestCase(EmailFieldTestMixin, TestCase):
 
     def test_invalid_credentials(self):
         """Test login with non-existent email or incorrect password raises validation error"""
-        serializer = self.serializer_class(data=self.get_payload(email="nonexist@example.com", password="wrongpassword"))
+        serializer = self.serializer_class(
+            data=self.get_payload(
+                email="nonexist@example.com", password="wrongpassword"
+            )
+        )
 
         self.assertFalse(serializer.is_valid())
         self.assertIn("error", serializer.errors)
@@ -74,5 +79,3 @@ class LoginSerializerTestCase(EmailFieldTestMixin, TestCase):
         self.assertTrue(serializer.is_valid())
         self.assertIn("refresh", serializer.context)
         self.assertIn("access", serializer.context)
-
-
