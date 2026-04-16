@@ -1,4 +1,3 @@
-from django.core.exceptions import ObjectDoesNotExist
 from rest_framework import status
 from rest_framework.exceptions import ValidationError
 from rest_framework.generics import GenericAPIView
@@ -28,7 +27,7 @@ class LogoutEndpoint(GenericAPIView):
             user = get_user_by_refresh_token(refresh_token)
             token = RefreshToken(refresh_token)
             token.blacklist()
-        except TokenError, ObjectDoesNotExist:
+        except TokenError:
             raise ValidationError({"error": "Token is invalid or already blacklisted."})
 
         ip_address = get_client_ip(request)

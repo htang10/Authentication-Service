@@ -1,5 +1,5 @@
 from django.utils import timezone
-from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework_simplejwt.tokens import RefreshToken, TokenError
 
 from authentication.models import Token, User
 
@@ -14,7 +14,10 @@ def create_user(*, email: str, password: str, **extra_fields) -> User:
 def get_user_by_refresh_token(token: Token) -> User:
     """Retrieves a user by refresh token"""
     user_id = RefreshToken(token)["user_id"]
-    user = User.objects.get(pk=user_id)
+    try:
+        user = User.objects.get(pk=user_id)
+    except User.DoesNotExist:
+        raise TokenError
     return user
 
 
