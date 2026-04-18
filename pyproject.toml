@@ -12,6 +12,7 @@ dependencies = [
     "djangorestframework>=3.17.0",
     "djangorestframework-simplejwt[crypto]>=5.5.1",
     "drf-spectacular>=0.29.0",
+    "html2text>=2025.4.15",
     "isort>=8.0.1",
     "psycopg[binary]>=3.3.3",
     "python-dotenv>=1.2.2",
