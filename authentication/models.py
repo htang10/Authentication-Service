@@ -2,11 +2,27 @@ import random
 import string
 import uuid
 
-from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin, UserManager
+from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
 from django.db import models
 
 
-class User(AbstractBaseUser, PermissionsMixin):
+class CustomUserManager(BaseUserManager):
+    def create_user(self, email, password=None, **extra_fields):
+        if not email:
+            raise ValueError("Email is required")
+        email = self.normalize_email(email)
+        user = self.model(email=email, **extra_fields)
+        user.set_password(password)
+        user.save(using=self._db)
+        return user
+
+    def create_superuser(self, email, password=None, **extra_fields):
+        extra_fields.setdefault("is_staff", True)
+        extra_fields.setdefault("is_superuser", True)
+        return self.create_user(email, password, **extra_fields)
+
+
+class User(AbstractBaseUser):
     id = models.UUIDField(default=uuid.uuid7, editable=False, primary_key=True)
 
     # identity
@@ -35,15 +51,24 @@ class User(AbstractBaseUser, PermissionsMixin):
     # masking
     masked_at = models.DateTimeField(null=True)
 
+    # Suppressed fields
+    last_login = None
+
     USERNAME_FIELD = "email"
     REQUIRED_FIELDS = []
 
-    objects = UserManager()
+    objects = CustomUserManager()
 
     class Meta:
         verbose_name = "User"
         db_table = "users"
         ordering = ["-created_at"]
+
+    def has_perm(self, perm, obj=None):
+        return self.is_superuser
+
+    def has_module_perms(self, app_label):
+        return self.is_superuser
 
     def save(self, *args, **kwargs):
         self.email = self.email.lower().strip()
@@ -60,6 +85,9 @@ class User(AbstractBaseUser, PermissionsMixin):
 
         super().save(**kwargs)
 
+    def __str__(self):
+        return self.email
+
 
 class Token(models.Model):
     class Purpose(models.TextChoices):
@@ -70,13 +98,19 @@ class Token(models.Model):
 
     id = models.UUIDField(default=uuid.uuid7, editable=False, primary_key=True)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-    token = models.CharField(max_length=128)  # hashed
+    token = models.CharField(max_length=128, db_index=True)  # hashed
     purpose = models.CharField(max_length=32, choices=Purpose)
     created_at = models.DateTimeField(auto_now_add=True)
-    expires_at = models.DateTimeField(default="")
+    expires_at = models.DateTimeField()
     used_at = models.DateTimeField(null=True)
 
     class Meta:
         verbose_name = "Token"
         db_table = "tokens"
         ordering = ["-created_at"]
+        indexes = [
+            models.Index(fields=["user", "purpose"]),
+        ]
+
+    def __str__(self):
+        return f"{self.purpose} token for {self.user.email}"
