@@ -14,6 +14,12 @@ class EmailNotFound(APIException):
     default_code = "EMAIL_NOT_EXIST"
 
 
+class EmailAlreadyExists(APIException):
+    status_code = status.HTTP_400_BAD_REQUEST
+    default_detail = "Email already exists."
+    default_code = "EMAIL_ALREADY_EXISTS"
+
+
 class EmailNotVerified(APIException):
     status_code = status.HTTP_400_BAD_REQUEST
     default_detail = "Email not verified."
@@ -26,5 +32,7 @@ class EmailAlreadyVerified(APIException):
     default_code = "EMAIL_ALREADY_VERIFIED"
 
 
-class EmailVerificationError(Exception):
-    pass
+class EmailVerificationError(APIException):
+    status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
+    default_detail = "Failed to send email."
+    default_code = "EMAIL_VERIFICATION_ERROR"
