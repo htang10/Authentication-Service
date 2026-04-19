@@ -9,49 +9,45 @@ from django.template.loader import render_to_string
 from authentication.exceptions import EmailVerificationError
 from authentication.models import Token, User
 from authentication.services.mailing.base import dispatch_mail
-from authentication.services.tokens.verification import (
+from authentication.services.tokens.ott import (
     generate_token,
     invalidate_past_tokens,
     save_token,
 )
+from authentication.utils import format_expiry, generate_plain_text_from_html
 
 logger = logging.getLogger(__name__)
 
 # Map purpose to template + subject + url path
 VERIFICATION_EMAIL_CONFIG = {
-    Token.Purpose.VERIFICATION: {
-        "subject": "Please Activate Your Account",
-        "html_template": "emails/verification_email.html",
-        "txt_template": "emails/verification_email.txt",
-        "url": "/auth/verify/",
-    },
-    Token.Purpose.PASSWORD_RESET: {
-        "subject": "Reset Your Password",
-        "html_template": "",
-        "txt_template": "",
-        "url": "/auth/reset-password/",
-    },
-    Token.Purpose.EMAIL_CHANGE: {
-        "subject": "Confirmation link to change your email",
-        "html_template": "",
-        "url": "",
-    },
+    Token.Purpose.SIGN_UP: {"subject": "Please Activate Your Account"},
+    Token.Purpose.PASSWORD_RESET: {"subject": "Reset Your Password"},
+    Token.Purpose.EMAIL_CHANGE: {"subject": "Confirmation link to change your email"},
 }
 
 
-def send_verification_email(email: str, token: str, purpose: Token.Purpose) -> None:
+def send_verification_email(
+    email: str, token: str, purpose: Token.Purpose, expiry: int | float
+) -> None:
     config = VERIFICATION_EMAIL_CONFIG.get(purpose)
 
-    verification_url = (
-        f"{settings.FRONTEND_URL}{config["url"]}?token={token}&purpose={purpose}"
-    )
+    # Extract variables for template
+    username = User.objects.get(email=email).display_name
+    url = f"{settings.FRONTEND_URL}/auth/verify?token={token}&purpose={purpose}"
+    expiry_display = format_expiry(expiry)
+
+    # Configure email subject and body
     subject = config["subject"]
     html_content = render_to_string(
-        config["html_template"], {"verification_url": verification_url}
+        "emails/verification.html",
+        {
+            "username": username,
+            "purpose": purpose.value.replace("_", " "),
+            "url": url,
+            "expiry": expiry_display,
+        },
     )
-    text_content = render_to_string(
-        config["txt_template"], {"verification_url": verification_url}
-    )
+    text_content = generate_plain_text_from_html(html_content)
 
     dispatch_mail(
         recipients=[email],
@@ -72,7 +68,7 @@ def generate_verification_email(
         # The newest token is used for validation
         token, hashed_token = generate_token()
         save_token(hashed_token, user, purpose, expiry)
-        send_verification_email(user.email, token, purpose)
+        send_verification_email(user.email, token, purpose, expiry)
     except (TemplateDoesNotExist, TemplateSyntaxError) as template_error:
         # Your template is missing or broken
         logger.error(f"Template error: {template_error}")
@@ -96,11 +92,11 @@ def generate_verification_email(
 
 
 def send_email_verification_link(user: User) -> None:
-    generate_verification_email(user, Token.Purpose.VERIFICATION)
+    generate_verification_email(user, Token.Purpose.SIGN_UP)
 
 
 def send_password_reset_link(user: User) -> None:
-    generate_verification_email(user, Token.Purpose.PASSWORD_RESET, expiry=1 / 6)
+    generate_verification_email(user, Token.Purpose.PASSWORD_RESET, expiry=1)
 
 
 def send_email_change_link(user: User) -> None:
