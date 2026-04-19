@@ -1,7 +1,7 @@
 from django.utils import timezone
-from rest_framework_simplejwt.tokens import RefreshToken, TokenError
+from rest_framework_simplejwt.tokens import RefreshToken, Token, TokenError
 
-from authentication.models import Token, User
+from authentication.models import User
 
 
 def create_user(*, email: str, password: str, **extra_fields) -> User:
@@ -11,8 +11,14 @@ def create_user(*, email: str, password: str, **extra_fields) -> User:
     return user
 
 
+def find_existing_user(email: str) -> User | None:
+    try:
+        return User.objects.get(email=email)
+    except User.DoesNotExist:
+        return None
+
+
 def get_user_by_refresh_token(token: Token) -> User:
-    """Retrieves a user by refresh token"""
     user_id = RefreshToken(token)["user_id"]
     try:
         user = User.objects.get(pk=user_id)
@@ -22,9 +28,6 @@ def get_user_by_refresh_token(token: Token) -> User:
 
 
 def update_user_login_metadata(user: User, ip_address: str, user_agent: str) -> None:
-    """
-    Updates the user login metadata including timestamp, ip address, user agent and medium.
-    """
     now = timezone.now()
     user.last_login_time = now
     user.last_active = now
@@ -43,9 +46,11 @@ def update_user_login_metadata(user: User, ip_address: str, user_agent: str) -> 
 
 
 def update_user_logout_metadata(user: User, ip_address: str) -> None:
-    """
-    Updates the user logout metadata including timestamp and ip address
-    """
     user.last_logout_time = timezone.now()
     user.last_logout_ip = ip_address
     user.save(update_fields=["last_logout_time", "last_logout_ip"])
+
+
+def mark_user_verified(user: User) -> None:
+    user.email_verified_at = timezone.now()
+    user.save(update_fields=["email_verified_at"])
