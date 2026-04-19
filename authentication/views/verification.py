@@ -6,29 +6,32 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from authentication.exceptions import EmailVerificationError
+from authentication.models import Token
 from authentication.serializers import ResendVerificationSerializer
-from authentication.services import send_email_verification_link, verify_token
+from authentication.services import (
+    mark_user_verified,
+    send_email_verification_link,
+    verify_token,
+)
 
 
-class VerifyEmailEndpoint(APIView):
-    """Endpoint for verifying user email"""
-
+class VerifyTokenEndpoint(APIView):
     permission_classes = [AllowAny]
 
     def get(self, request):
         token = request.query_params.get("token")
         purpose = request.query_params.get("purpose")
 
-        verify_token(token, purpose)
+        token_obj = verify_token(token, purpose)
+        if purpose != Token.Purpose.PASSWORD_RESET:
+            mark_user_verified(token_obj.user)
 
         return Response(
-            {"message": "Email verified successfully."}, status=status.HTTP_200_OK
+            {"message": "Verified successfully."}, status=status.HTTP_200_OK
         )
 
 
 class ResendVerificationEndpoint(GenericAPIView):
-    """Endpoint for resending verification email"""
-
     serializer_class = ResendVerificationSerializer
     permission_classes = [AllowAny]
 
