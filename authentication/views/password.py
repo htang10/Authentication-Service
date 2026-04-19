@@ -14,8 +14,6 @@ from authentication.utils import get_client_ip
 
 
 class SignUpEndpoint(GenericAPIView):
-    """Password-based sign-up endpoint"""
-
     serializer_class = SignUpSerializer
     permission_classes = [AllowAny]
 
@@ -43,8 +41,6 @@ class SignUpEndpoint(GenericAPIView):
 
 
 class LoginEndpoint(GenericAPIView):
-    """Password-based login endpoint"""
-
     serializer_class = LoginSerializer
     permission_classes = [AllowAny]
 
