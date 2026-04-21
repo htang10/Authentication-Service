@@ -134,7 +134,7 @@ SPECTACULAR_SETTINGS = {
 
 CELERY_BEAT_SCHEDULE = {
     "flush-expired-tokens-daily": {
-        "task": "authentication.tasks.flush_expired_tokens",
+        "task": "authentication.tasks.tokens.flush_expired_tokens",
         "schedule": crontab(hour=0, minute=0),  # every midnight
     }
 }
