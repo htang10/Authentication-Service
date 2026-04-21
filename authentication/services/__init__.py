@@ -1,8 +1,3 @@
-from .mailing.verification import (
-    send_email_change_link,
-    send_email_verification_link,
-    send_password_reset_link,
-)
 from .password import reset_password
 from .tokens.ott import verify_token
 from .user import (
