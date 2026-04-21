@@ -6,10 +6,8 @@ from rest_framework_simplejwt.tokens import RefreshToken
 
 from authentication.exceptions import EmailVerificationError
 from authentication.serializers import LoginSerializer, SignUpSerializer
-from authentication.services import (
-    send_email_verification_link,
-    update_user_login_metadata,
-)
+from authentication.services import update_user_login_metadata
+from authentication.tasks import send_email_verification_link_task
 from authentication.utils import get_client_ip
 
 
@@ -23,7 +21,7 @@ class SignUpEndpoint(GenericAPIView):
         user = serializer.save()
 
         try:
-            send_email_verification_link(user)
+            send_email_verification_link_task.delay(user.id)
         except EmailVerificationError:
             return Response(
                 {

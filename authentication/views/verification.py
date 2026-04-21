@@ -8,11 +8,8 @@ from rest_framework.views import APIView
 from authentication.exceptions import EmailVerificationError
 from authentication.models import Token
 from authentication.serializers import ResendVerificationSerializer
-from authentication.services import (
-    mark_user_verified,
-    send_email_verification_link,
-    verify_token,
-)
+from authentication.services import mark_user_verified, verify_token
+from authentication.tasks import send_email_verification_link_task
 
 
 class VerifyTokenEndpoint(APIView):
@@ -40,12 +37,7 @@ class ResendVerificationEndpoint(GenericAPIView):
         serializer.is_valid(raise_exception=True)
         user = serializer.validated_data["user"]
 
-        try:
-            send_email_verification_link(user)
-        except EmailVerificationError:
-            raise APIException(
-                {"error": "Failed to send verification email. Please try again later."}
-            )
+        send_email_verification_link_task.delay(user.id)
 
         return Response(
             {"message": f"A verification email has been sent to {user.email}."},

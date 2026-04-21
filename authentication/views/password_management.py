@@ -4,7 +4,8 @@ from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 
 from authentication.serializers import ForgotPasswordSerializer, ResetPasswordSerializer
-from authentication.services import reset_password, send_password_reset_link
+from authentication.services import reset_password
+from authentication.tasks import send_password_reset_link_task
 
 
 class ForgotPasswordEndpoint(GenericAPIView):
@@ -18,7 +19,7 @@ class ForgotPasswordEndpoint(GenericAPIView):
         serializer.is_valid(raise_exception=True)
         user = serializer.validated_data["user"]
 
-        send_password_reset_link(user)
+        send_password_reset_link_task.delay(user.id)
 
         return Response(
             {"message": f"A password reset link has been sent to {user.email}."},
