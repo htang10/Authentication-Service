@@ -4,7 +4,7 @@ from rest_framework.exceptions import APIException
 
 class InvalidCredentials(APIException):
     status_code = status.HTTP_400_BAD_REQUEST
-    default_detail = "Invalid email or password."
+    default_detail = "Invalid credentials."
     default_code = "INVALID_CREDENTIALS"
 
 
