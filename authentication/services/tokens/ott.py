@@ -1,39 +1,35 @@
 import secrets
 from datetime import timedelta
-from hashlib import sha512
 
 from django.utils import timezone
 from rest_framework.exceptions import ValidationError
 
 from authentication.models import Token, User
+from authentication.services.tokens import hash_secret
 from authentication.utils import convert_expiry
 
 
 def generate_token() -> tuple[str, str]:
     token = secrets.token_urlsafe(32)
-    hashed_token = hash_token(token)
+    hashed_token = hash_secret(token)
     return token, hashed_token
-
-
-def hash_token(token: str) -> str:
-    return sha512(token.encode("utf-8")).hexdigest()
 
 
 def save_token(
     hashed_token_str: str, user: User, purpose: Token.Purpose, expiry: int | float
-) -> Token:
+) -> None:
     hours, minutes = convert_expiry(expiry)
     expires_at = timezone.now() + timedelta(hours=hours, minutes=minutes)
 
-    return Token.objects.create(
+    Token.objects.create(
         user=user, token=hashed_token_str, purpose=purpose, expires_at=expires_at
     )
 
 
 def verify_token(token_str: str, purpose: Token.Purpose) -> Token:
     if not token_str or not purpose:
-        raise ValidationError({"error": "Missing credentials."})
-    hashed_token = hash_token(token_str)
+        raise ValidationError("Missing credentials.")
+    hashed_token = hash_secret(token_str)
     token_obj = (
         Token.objects.select_related("user")
         .filter(
@@ -46,7 +42,7 @@ def verify_token(token_str: str, purpose: Token.Purpose) -> Token:
     )
 
     if not token_obj:
-        raise ValidationError({"error": "Invalid or expired token."})
+        raise ValidationError("Invalid or expired token.")
 
     if purpose == Token.Purpose.SIGN_UP:
         mark_used_token(token_obj)
