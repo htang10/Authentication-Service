@@ -4,9 +4,10 @@ from rest_framework_simplejwt.tokens import RefreshToken, Token, TokenError
 from authentication.models import User
 
 
-def create_user(*, email: str, password: str, **extra_fields) -> User:
+def create_user(*, email: str, password: str | None = None, **extra_fields) -> User:
     user = User.objects.create(email=email, **extra_fields)
-    user.set_password(password)
+    if password:
+        user.set_password(password)
     user.save()
     return user
 
