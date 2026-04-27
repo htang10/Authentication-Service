@@ -28,7 +28,7 @@ class LogoutEndpoint(GenericAPIView):
             token = RefreshToken(refresh_token)
             token.blacklist()
         except TokenError:
-            raise ValidationError({"error": "Token is invalid or already blacklisted."})
+            raise ValidationError("Token is invalid or already blacklisted.")
 
         ip_address = get_client_ip(request)
         update_user_logout_metadata(user, ip_address)
