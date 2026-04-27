@@ -33,6 +33,7 @@ class SignUpSerializer(serializers.ModelSerializer):
             raise EmailAlreadyExists
 
         validate_password(data["password"])
+        data["email"] = email
         return data
 
     def create(self, validated_data):
