@@ -25,8 +25,12 @@ class ForgotPasswordSerializer(serializers.Serializer):
 
 
 class ResetPasswordSerializer(serializers.Serializer):
-    token = serializers.CharField(max_length=128)
-    new_password = serializers.CharField(min_length=8)
+    token = serializers.CharField(
+        max_length=128, write_only=True, style={"input_type": "password"}
+    )
+    new_password = serializers.CharField(
+        min_length=8, write_only=True, style={"input_type": "password"}
+    )
 
     def validate(self, data):
         validate_password(data["new_password"])
