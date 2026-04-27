@@ -2,6 +2,8 @@ from django.urls import path
 from rest_framework_simplejwt.views import TokenRefreshView
 
 from authentication.views import (
+    CodeGenerateEndpoint,
+    CodeLoginEndpoint,
     ForgotPasswordEndpoint,
     LoginEndpoint,
     LogoutEndpoint,
@@ -21,6 +23,9 @@ urlpatterns = [
         ResendVerificationEndpoint.as_view(),
         name="resend-verification",
     ),
+    # OTP
+    path("otp-generate/", CodeGenerateEndpoint.as_view(), name="otp-generate"),
+    path("otp-login/", CodeLoginEndpoint.as_view(), name="otp-login"),
     # Logout
     path("logout/", LogoutEndpoint.as_view(), name="logout"),
     # Password management
