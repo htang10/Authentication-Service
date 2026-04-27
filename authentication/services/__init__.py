@@ -1,5 +1,5 @@
 from .password import reset_password
-from .tokens.ott import verify_token
+from .tokens import delete_code, verify_code, verify_token
 from .user import (
     create_user,
     find_existing_user,
