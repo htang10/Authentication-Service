@@ -21,7 +21,7 @@ class SignUpEndpoint(GenericAPIView):
         user = serializer.save()
 
         try:
-            send_email_verification_link_task.delay(user.id)
+            send_email_verification_link_task.delay(user.email)
         except EmailVerificationError:
             return Response(
                 {
@@ -47,7 +47,7 @@ class LoginEndpoint(GenericAPIView):
         serializer.is_valid(raise_exception=True)
         user = serializer.validated_data["user"]
 
-        # update tracking fields
+        # Update tracking fields
         ip_address = get_client_ip(request)
         user_agent = request.META.get("HTTP_USER_AGENT")
         update_user_login_metadata(user, ip_address, user_agent)

@@ -1,11 +1,9 @@
 from rest_framework import status
-from rest_framework.exceptions import APIException
 from rest_framework.generics import GenericAPIView
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from authentication.exceptions import EmailVerificationError
 from authentication.models import Token
 from authentication.serializers import ResendVerificationSerializer
 from authentication.services import mark_user_verified, verify_token
@@ -37,7 +35,7 @@ class ResendVerificationEndpoint(GenericAPIView):
         serializer.is_valid(raise_exception=True)
         user = serializer.validated_data["user"]
 
-        send_email_verification_link_task.delay(user.id)
+        send_email_verification_link_task.delay(user.email)
 
         return Response(
             {"message": f"A verification email has been sent to {user.email}."},

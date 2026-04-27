@@ -19,7 +19,7 @@ class ForgotPasswordEndpoint(GenericAPIView):
         serializer.is_valid(raise_exception=True)
         user = serializer.validated_data["user"]
 
-        send_password_reset_link_task.delay(user.id)
+        send_password_reset_link_task.delay(user.email)
 
         return Response(
             {"message": f"A password reset link has been sent to {user.email}."},
