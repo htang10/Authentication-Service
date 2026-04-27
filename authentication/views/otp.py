@@ -5,7 +5,6 @@ from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
 
 from authentication.exceptions import EmailVerificationError
-from authentication.models import User
 from authentication.serializers import CodeGenerateSerializer, CodeLoginSerializer
 from authentication.services import (
     delete_code,
