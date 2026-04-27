@@ -9,7 +9,7 @@ from django.template.loader import render_to_string
 from authentication.exceptions import EmailVerificationError
 from authentication.models import Token, User
 from authentication.services.mailing.base import dispatch_mail
-from authentication.services.tokens.ott import (
+from authentication.services.tokens import (
     generate_token,
     invalidate_past_tokens,
     save_token,
