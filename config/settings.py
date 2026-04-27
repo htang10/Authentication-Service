@@ -111,6 +111,8 @@ DATABASES = {
     }
 }
 
+REDIS_URL = os.getenv("REDIS_URL")
+
 
 # Authentication
 
@@ -139,7 +141,7 @@ CELERY_BEAT_SCHEDULE = {
     }
 }
 
-CELERY_BROKER_URL = os.getenv("CELERY_BROKER_URL")
+CELERY_BROKER_URL = os.getenv("REDIS_URL")
 
 
 # Password Hashing
