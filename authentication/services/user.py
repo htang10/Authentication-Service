@@ -17,20 +17,24 @@ def create_user(email: str, password: str | None = None, **extra_fields) -> User
     return user
 
 
-def find_existing_user(email: str) -> User | None:
+def find_user_by_email(email: str) -> User | None:
     try:
         return User.objects.get(email=email)
     except User.DoesNotExist:
         return None
 
 
-def get_user_by_refresh_token(token: Token) -> User:
+def find_user_by_refresh_token(token: Token) -> User:
+    """Returns the user associated with the given refresh token.
+
+    Raises:
+        TokenError: The token is invalid or its user no longer exists.
+    """
     user_id = RefreshToken(token)["user_id"]
     try:
-        user = User.objects.get(pk=user_id)
+        return User.objects.get(pk=user_id)
     except User.DoesNotExist:
         raise TokenError
-    return user
 
 
 def update_user_login_metadata(user: User, ip_address: str, user_agent: str) -> None:
