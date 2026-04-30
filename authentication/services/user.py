@@ -1,10 +1,15 @@
 from django.utils import timezone
 from rest_framework_simplejwt.tokens import RefreshToken, Token, TokenError
 
+from authentication.exceptions import EmailNotVerified, InvalidCredentials
 from authentication.models import User
 
 
-def create_user(*, email: str, password: str | None = None, **extra_fields) -> User:
+def create_user(email: str, password: str | None = None, **extra_fields) -> User:
+    """Creates and returns a new user with the given email.
+
+    Password is not set if omitted, leaving the account without password-based authentication.
+    """
     user = User.objects.create(email=email, **extra_fields)
     if password:
         user.set_password(password)
