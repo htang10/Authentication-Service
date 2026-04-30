@@ -6,7 +6,7 @@ from django.db import DatabaseError
 from django.template.exceptions import TemplateDoesNotExist, TemplateSyntaxError
 from django.template.loader import render_to_string
 
-from authentication.exceptions import EmailVerificationError
+from authentication.exceptions import MailingServiceFailure
 from authentication.models import Token, User
 from authentication.services.mailing.base import dispatch_mail
 from authentication.services.tokens import (
@@ -78,23 +78,23 @@ def generate_link(user: User, purpose: Token.Purpose, expiry: int | float) -> No
     except (TemplateDoesNotExist, TemplateSyntaxError) as template_error:
         # Your template is missing or broken
         logger.error(f"Template error: {template_error}")
-        raise EmailVerificationError
+        raise MailingServiceFailure
     except SMTPAuthenticationError as auth_error:
         # Email credentials are wrong
         logger.error(f"Authentication error: {auth_error}")
-        raise EmailVerificationError
+        raise MailingServiceFailure
     except SMTPConnectError as connect_error:
         # Can't reach the mail server
         logger.error(f"Connection error: {connect_error}")
-        raise EmailVerificationError
+        raise MailingServiceFailure
     except SMTPException as unexpected_smtp_error:
         # Catch-all for any other SMTP failure
         logger.error(f"Unexpected error: {unexpected_smtp_error}")
-        raise EmailVerificationError
+        raise MailingServiceFailure
     except DatabaseError as db_error:
         # Token failed to save
         logger.exception(f"Database error: {db_error}")  # Trace failed queries
-        raise EmailVerificationError
+        raise MailingServiceFailure
 
 
 def send_email_verification_link(user: User) -> None:

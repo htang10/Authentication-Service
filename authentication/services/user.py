@@ -1,10 +1,15 @@
 from django.utils import timezone
 from rest_framework_simplejwt.tokens import RefreshToken, Token, TokenError
 
+from authentication.exceptions import EmailNotVerified, InvalidCredentials
 from authentication.models import User
 
 
-def create_user(*, email: str, password: str | None = None, **extra_fields) -> User:
+def create_user(email: str, password: str | None = None, **extra_fields) -> User:
+    """Creates and returns a new user with the given email.
+
+    Password is not set if omitted, leaving the account without password-based authentication.
+    """
     user = User.objects.create(email=email, **extra_fields)
     if password:
         user.set_password(password)
@@ -12,20 +17,24 @@ def create_user(*, email: str, password: str | None = None, **extra_fields) -> U
     return user
 
 
-def find_existing_user(email: str) -> User | None:
+def find_user_by_email(email: str) -> User | None:
     try:
         return User.objects.get(email=email)
     except User.DoesNotExist:
         return None
 
 
-def get_user_by_refresh_token(token: Token) -> User:
+def find_user_by_refresh_token(token: Token) -> User:
+    """Returns the user associated with the given refresh token.
+
+    Raises:
+        TokenError: The token is invalid or its user no longer exists.
+    """
     user_id = RefreshToken(token)["user_id"]
     try:
-        user = User.objects.get(pk=user_id)
+        return User.objects.get(pk=user_id)
     except User.DoesNotExist:
         raise TokenError
-    return user
 
 
 def update_user_login_metadata(user: User, ip_address: str, user_agent: str) -> None:
@@ -55,3 +64,19 @@ def update_user_logout_metadata(user: User, ip_address: str) -> None:
 def mark_user_verified(user: User) -> None:
     user.email_verified_at = timezone.now()
     user.save(update_fields=["email_verified_at"])
+
+
+def authenticate_user(email: str, password: str) -> User:
+    """Authenticates a user by email and password.
+
+    Raises:
+        InvalidCredentials: Either no user exists with the given email or the password is incorrect.
+        EmailNotVerified: The user's email has not been verified.
+    """
+    user = find_user_by_email(email)
+    if user is None or not user.check_password(password):
+        raise InvalidCredentials
+    if not user.email_verified_at:
+        raise EmailNotVerified
+
+    return user

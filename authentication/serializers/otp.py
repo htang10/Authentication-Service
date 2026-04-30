@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from authentication.services import create_user, find_existing_user, verify_code
+from authentication.services import create_user, find_user_by_email, verify_code
 from authentication.utils import normalize_email
 
 
@@ -9,7 +9,6 @@ class CodeGenerateSerializer(serializers.Serializer):
 
     def validate(self, data):
         data["email"] = normalize_email(data["email"])
-
         return data
 
 
@@ -26,7 +25,7 @@ class CodeLoginSerializer(serializers.Serializer):
         return {"email": email}
 
     def create(self, validated_data):
-        user = find_existing_user(validated_data["email"])
+        user = find_user_by_email(validated_data["email"])
         if not user:
             return create_user(**validated_data)
         return user
