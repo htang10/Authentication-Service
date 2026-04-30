@@ -32,7 +32,13 @@ class EmailAlreadyVerified(APIException):
     default_code = "EMAIL_ALREADY_VERIFIED"
 
 
-class EmailVerificationError(APIException):
+class MailingServiceFailure(APIException):
     status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
     default_detail = "Failed to send email."
-    default_code = "EMAIL_VERIFICATION_ERROR"
+    default_code = "MAILING_SERVICE_FAILURE"
+
+
+class InvalidRefreshToken(APIException):
+    status_code = status.HTTP_400_BAD_REQUEST
+    default_detail = "Invalid or expired token."
+    default_code = "INVALID_REFRESH_TOKEN"
