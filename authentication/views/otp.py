@@ -4,7 +4,6 @@ from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
 
-from authentication.exceptions import EmailVerificationError
 from authentication.serializers import CodeGenerateSerializer, CodeLoginSerializer
 from authentication.services import (
     delete_code,
@@ -24,15 +23,7 @@ class CodeGenerateEndpoint(GenericAPIView):
         serializer.is_valid(raise_exception=True)
         email = serializer.validated_data["email"]
 
-        try:
-            send_otp_email_task.delay(email)
-        except EmailVerificationError:
-            return Response(
-                {
-                    "message": "Failed to send confirmation code",
-                },
-                status=status.HTTP_201_CREATED,
-            )
+        send_otp_email_task.delay(email)
 
         return Response(
             {
