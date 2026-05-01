@@ -7,7 +7,7 @@ from rest_framework_simplejwt.tokens import RefreshToken, TokenError
 from authentication.exceptions import InvalidRefreshToken
 from authentication.serializers import LogoutSerializer
 from authentication.services import (
-    find_user_by_refresh_token,
+    get_user_by_refresh_token,
     update_user_logout_metadata,
 )
 from authentication.utils import get_client_ip
@@ -17,9 +17,6 @@ class LogoutEndpoint(GenericAPIView):
     """Blacklists the user's refresh token and logs them out.
 
     Returns no response body on success.
-
-    Raises:
-        InvalidRefreshToken: The refresh token is invalid or expired.
     """
 
     serializer_class = LogoutSerializer
@@ -32,7 +29,7 @@ class LogoutEndpoint(GenericAPIView):
 
         try:
             # Retrieve the owner
-            user = find_user_by_refresh_token(refresh_token)
+            user = get_user_by_refresh_token(refresh_token)
             token = RefreshToken(refresh_token)
             token.blacklist()
         except TokenError:
