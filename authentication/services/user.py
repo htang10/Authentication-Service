@@ -81,17 +81,21 @@ def mark_user_verified(user: User) -> None:
     user.save(update_fields=["email_verified_at"])
 
 
-def authenticate_user(email: str, password: str) -> User:
-    """Authenticates a user by email and password.
+def authenticate_user(email: str, password: str | None = None) -> None:
+    """Authenticates a user by email, optionally validating their password.
 
     Raises:
-        InvalidCredentials: Either no user exists with the given email or the password is incorrect.
+        InvalidCredentials: No user found with the given email, or password is incorrect.
         EmailNotVerified: The user's email has not been verified.
     """
-    user = find_user_by_email(email)
-    if user is None or not user.check_password(password):
+    try:
+        user = get_user_by_email(email)
+    except EmailNotFound:
         raise InvalidCredentials
+
     if not user.email_verified_at:
         raise EmailNotVerified
 
-    return user
+    if password:
+        if not user.check_password(password):
+            raise InvalidCredentials
