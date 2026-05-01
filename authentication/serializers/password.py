@@ -10,9 +10,6 @@ class SignUpSerializer(serializers.Serializer):
     Attributes:
         email: Normalized to lowercase before validation.
         password: Validated against Django's password validators.
-
-    Raises:
-        ValidationError: Either email format is invalid or password fails strength requirements.
     """
 
     email = serializers.EmailField(max_length=255)
@@ -29,9 +26,6 @@ class LoginSerializer(serializers.Serializer):
 
     Attributes:
         email: Normalized to lowercase before validation.
-
-    Raises:
-        ValidationError: Invalid email format.
     """
 
     email = serializers.EmailField(max_length=255)
