@@ -60,8 +60,6 @@ class SignUpEndpoint(GenericAPIView):
 class LoginEndpoint(GenericAPIView):
     """Authenticates a user and returns JWT access and refresh tokens.
 
-    On successful authentication, login metadata is updated with the request time, IP address, and user agent.
-
     Raises:
         InvalidCredentials: The provided email or password is incorrect.
         EmailNotVerified: The user's email has not been verified.
