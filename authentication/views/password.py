@@ -21,9 +21,6 @@ class SignUpEndpoint(GenericAPIView):
     """Creates a new user and sends a verification link to their email address.
 
     The user account is created regardless of whether the verification email was sent successfully.
-
-    Raises:
-        EmailAlreadyExists: The given email has already been registered by another user.
     """
 
     serializer_class = SignUpSerializer
@@ -59,12 +56,7 @@ class SignUpEndpoint(GenericAPIView):
 
 
 class LoginEndpoint(GenericAPIView):
-    """Authenticates a user and returns JWT access and refresh tokens.
-
-    Raises:
-        InvalidCredentials: The provided email or password is incorrect.
-        EmailNotVerified: The user's email has not been verified.
-    """
+    """Authenticates a user and returns JWT access and refresh tokens."""
 
     serializer_class = LoginSerializer
     permission_classes = [AllowAny]
