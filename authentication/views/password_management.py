@@ -4,7 +4,7 @@ from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 
 from authentication.serializers import ForgotPasswordSerializer, ResetPasswordSerializer
-from authentication.services import reset_password, authenticate_user
+from authentication.services import authenticate_user, reset_password
 from authentication.tasks import send_password_reset_link_task
 
 
