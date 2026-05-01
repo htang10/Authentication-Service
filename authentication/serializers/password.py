@@ -8,7 +8,7 @@ class SignUpSerializer(serializers.Serializer):
     """Validates password-based sign-up inputs.
 
     Attributes:
-        email: Normalized to lowercase before validation.
+        email: Normalized to lowercase.
         password: Validated against Django's password validators.
     """
 
@@ -25,7 +25,7 @@ class LoginSerializer(serializers.Serializer):
     """Validates password-based login credentials.
 
     Attributes:
-        email: Normalized to lowercase before validation.
+        email: Normalized to lowercase.
     """
 
     email = serializers.EmailField(max_length=255)
