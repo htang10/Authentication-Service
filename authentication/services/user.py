@@ -1,7 +1,11 @@
 from django.utils import timezone
 from rest_framework_simplejwt.tokens import RefreshToken, Token, TokenError
 
-from authentication.exceptions import EmailNotVerified, InvalidCredentials
+from authentication.exceptions import (
+    EmailNotFound,
+    EmailNotVerified,
+    InvalidCredentials,
+)
 from authentication.models import User
 
 
@@ -15,6 +19,17 @@ def create_user(email: str, password: str | None = None, **extra_fields) -> User
         user.set_password(password)
     user.save()
     return user
+
+
+def get_user_by_email(email: str) -> User:
+    """
+    Raises:
+        EmailNotFound: No user exists with the given email.
+    """
+    try:
+        return User.objects.get(email=email)
+    except User.DoesNotExist:
+        raise EmailNotFound
 
 
 def find_user_by_email(email: str) -> User | None:
