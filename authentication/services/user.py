@@ -39,7 +39,7 @@ def find_user_by_email(email: str) -> User | None:
         return None
 
 
-def find_user_by_refresh_token(token: Token) -> User:
+def get_user_by_refresh_token(token: Token) -> User:
     """Returns the user associated with the given refresh token.
 
     Raises:
