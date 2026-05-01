@@ -12,6 +12,7 @@ from authentication.services import (
     find_user_by_email,
     update_user_login_metadata,
 )
+from authentication.services.user import get_user_by_email
 from authentication.tasks import send_email_verification_link_task
 from authentication.utils import get_client_ip
 
@@ -75,7 +76,8 @@ class LoginEndpoint(GenericAPIView):
         password = serializer.validated_data["password"]
 
         # Authenticate user
-        user = authenticate_user(email, password)
+        authenticate_user(email, password)
+        user = get_user_by_email(email)  # A user must exist if authenticated
         # Update tracking fields
         ip_address = get_client_ip(request)
         user_agent = request.META.get("HTTP_USER_AGENT")
