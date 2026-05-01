@@ -14,7 +14,13 @@ from authentication.utils import get_client_ip
 
 
 class LogoutEndpoint(GenericAPIView):
-    """Logout endpoint for all auth methods"""
+    """Blacklists the user's refresh token and logs them out.
+
+    Returns no response body on success.
+
+    Raises:
+        InvalidRefreshToken: The refresh token is invalid or expired.
+    """
 
     serializer_class = LogoutSerializer
     permission_classes = [IsAuthenticated]
