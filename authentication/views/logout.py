@@ -4,7 +4,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken, TokenError
 
-from authentication.exceptions import InvalidRefreshToken
+from authentication.exceptions import InvalidToken
 from authentication.serializers import LogoutSerializer
 from authentication.services import (
     get_user_by_refresh_token,
@@ -33,7 +33,7 @@ class LogoutEndpoint(GenericAPIView):
             token = RefreshToken(refresh_token)
             token.blacklist()
         except TokenError:
-            raise InvalidRefreshToken
+            raise InvalidToken
 
         ip_address = get_client_ip(request)
         update_user_logout_metadata(user, ip_address)
