@@ -38,7 +38,7 @@ class MailingServiceFailure(APIException):
     default_code = "MAILING_SERVICE_FAILURE"
 
 
-class InvalidRefreshToken(APIException):
+class InvalidToken(APIException):
     status_code = status.HTTP_400_BAD_REQUEST
     default_detail = "Invalid or expired token."
-    default_code = "INVALID_REFRESH_TOKEN"
+    default_code = "INVALID_TOKEN"
