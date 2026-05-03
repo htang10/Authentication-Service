@@ -2,6 +2,7 @@ from django.utils import timezone
 from rest_framework_simplejwt.tokens import RefreshToken, Token, TokenError
 
 from authentication.exceptions import (
+    EmailAlreadyVerified,
     EmailNotFound,
     EmailNotVerified,
     InvalidCredentials,
@@ -99,3 +100,13 @@ def authenticate_user(email: str, password: str | None = None) -> None:
     if password:
         if not user.check_password(password):
             raise InvalidCredentials
+
+
+def check_user_pending_verification(email: str) -> None:
+    try:
+        user = get_user_by_email(email)
+    except EmailNotFound:
+        raise InvalidCredentials
+
+    if user.email_verified_at:
+        raise EmailAlreadyVerified
