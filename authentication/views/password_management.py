@@ -9,7 +9,7 @@ from authentication.tasks import send_password_reset_link_task
 
 
 class ForgotPasswordEndpoint(GenericAPIView):
-    """Validate user and send password reset link"""
+    """Authenticates the user and sends a password reset link."""
 
     serializer_class = ForgotPasswordSerializer
     permission_classes = [AllowAny]
@@ -30,6 +30,12 @@ class ForgotPasswordEndpoint(GenericAPIView):
 
 
 class ResetPasswordEndpoint(GenericAPIView):
+    """Set a new password on the user who the provided token was assigned to.
+
+    Attributes:
+        token: The refresh token assigned to the user.
+    """
+
     serializer_class = ResetPasswordSerializer
     permission_classes = [AllowAny]
 
