@@ -12,6 +12,11 @@ from authentication.tasks import send_email_verification_link_task
 
 
 class VerifyTokenEndpoint(APIView):
+    """Verifies the user using their token.
+
+    If the user requests a password change, their verification state is left unchanged.
+    """
+
     permission_classes = [AllowAny]
 
     def get(self, request):
@@ -28,6 +33,8 @@ class VerifyTokenEndpoint(APIView):
 
 
 class ResendVerificationEndpoint(GenericAPIView):
+    """Sends a new verification link to the user only if their email is not yet verified."""
+
     serializer_class = ResendVerificationSerializer
     permission_classes = [AllowAny]
 
