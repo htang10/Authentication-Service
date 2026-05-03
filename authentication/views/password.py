@@ -56,7 +56,7 @@ class SignUpEndpoint(GenericAPIView):
 
 
 class LoginEndpoint(GenericAPIView):
-    """Authenticates a user and returns JWT access and refresh tokens."""
+    """Authenticates the user and returns JWT access and refresh tokens."""
 
     serializer_class = LoginSerializer
     permission_classes = [AllowAny]

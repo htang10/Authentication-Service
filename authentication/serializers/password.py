@@ -9,7 +9,7 @@ class SignUpSerializer(serializers.Serializer):
 
     Attributes:
         email: Normalized to lowercase.
-        password: Validated against Django's password validators.
+        password: Validated against the required security standards.
     """
 
     email = serializers.EmailField(max_length=255)
