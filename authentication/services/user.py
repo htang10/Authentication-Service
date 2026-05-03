@@ -103,6 +103,12 @@ def authenticate_user(email: str, password: str | None = None) -> None:
 
 
 def check_user_pending_verification(email: str) -> None:
+    """Validates that a user exists and has a pending email verification.
+
+    Raises:
+        InvalidCredentials: No user found with the given email.
+        EmailAlreadyVerified: The user's email has already been verified.
+    """
     try:
         user = get_user_by_email(email)
     except EmailNotFound:
