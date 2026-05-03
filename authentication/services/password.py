@@ -1,5 +1,5 @@
 from authentication.models import Token
-from authentication.services.tokens import hash_secret, mark_used_token
+from authentication.services.tokens import hash_secret, mark_token_used
 
 
 def reset_password(token_str: str, new_password: str) -> None:
@@ -10,4 +10,4 @@ def reset_password(token_str: str, new_password: str) -> None:
     user.set_password(new_password)
     user.save()
 
-    mark_used_token(token)
+    mark_token_used(token)
