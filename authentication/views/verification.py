@@ -7,6 +7,7 @@ from rest_framework.views import APIView
 from authentication.models import Token
 from authentication.serializers import ResendVerificationSerializer
 from authentication.services import mark_user_verified, verify_token
+from authentication.services.user import check_user_pending_verification
 from authentication.tasks import send_email_verification_link_task
 
 
@@ -33,11 +34,12 @@ class ResendVerificationEndpoint(GenericAPIView):
     def post(self, request):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        user = serializer.validated_data["user"]
+        email = serializer.validated_data["email"]
 
-        send_email_verification_link_task.delay(user.email)
+        check_user_pending_verification(email)
+        send_email_verification_link_task.delay(email)
 
         return Response(
-            {"message": f"A verification email has been sent to {user.email}."},
+            {"message": f"A verification email has been sent to {email}."},
             status=status.HTTP_200_OK,
         )
