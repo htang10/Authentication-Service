@@ -8,7 +8,7 @@ TEMPLATE_NAME = "emails/code.html"
 
 
 def mail_otp_code(email: str, code: str, expiry: int | float) -> None:
-    """Sends a one-time verification code to the given email."""
+    """Renders and sends an OTP code email to the given address."""
     expiry_display = format_expiry(expiry)
     subject = "Confirmation code to log in your account"
     html_content = render_to_string(
