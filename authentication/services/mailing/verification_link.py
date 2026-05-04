@@ -11,7 +11,9 @@ from authentication.services.tokens import (
 from authentication.services.user import get_user_by_email
 from authentication.utils import format_expiry, generate_plain_text_from_html
 
-# Map purpose to template + subject + url path
+TEMPLATE_NAME = "emails/link.html"
+
+# Maps token purpose to email subject and call-to-action text
 CONFIG = {
     Token.Purpose.SIGN_UP: {
         "subject": "Please Activate Your Account",
@@ -31,6 +33,7 @@ CONFIG = {
 def send_link(
     email: str, token: str, purpose: Token.Purpose, expiry: int | float
 ) -> None:
+    """Sends a purpose-specific verification email containing a clickable link."""
     config = CONFIG[purpose]
 
     # Extract variables for template
@@ -40,7 +43,7 @@ def send_link(
     # Configure email subject and body
     subject = config["subject"]
     html_content = render_to_string(
-        "emails/verification_link.html",
+        TEMPLATE_NAME,
         {
             "content": config["content"],
             "url": url,
@@ -58,11 +61,13 @@ def send_link(
 
 
 def generate_link(email: str, purpose: Token.Purpose, expiry: int | float) -> None:
+    """Generates and sends a verification link to the given email address.
+
+    All previous unused tokens for the user are invalidated before the new one is created.
+    """
     user = get_user_by_email(email)
-    # Invalidate all previous unused tokens
     invalidate_past_tokens(user, purpose)
     with handle_mailing_errors():
-        # The newest token is used for validation
         token, hashed_token = generate_token()
         save_token(hashed_token, user, purpose, expiry)
         send_link(email, token, purpose, expiry)
