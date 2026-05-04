@@ -1,22 +1,15 @@
-import logging
-from smtplib import SMTPAuthenticationError, SMTPConnectError, SMTPException
-
 from django.conf import settings
-from django.db import DatabaseError
-from django.template.exceptions import TemplateDoesNotExist, TemplateSyntaxError
 from django.template.loader import render_to_string
 
-from authentication.exceptions import MailingServiceFailure
-from authentication.models import Token, User
-from authentication.services.mailing.base import dispatch_mail
+from authentication.models import Token
+from authentication.services.mailing.base import dispatch_mail, handle_mailing_errors
 from authentication.services.tokens import (
     generate_token,
     invalidate_past_tokens,
     save_token,
 )
+from authentication.services.user import get_user_by_email
 from authentication.utils import format_expiry, generate_plain_text_from_html
-
-logger = logging.getLogger(__name__)
 
 # Map purpose to template + subject + url path
 CONFIG = {
@@ -36,12 +29,11 @@ CONFIG = {
 
 
 def send_link(
-    user: User, token: str, purpose: Token.Purpose, expiry: int | float
+    email: str, token: str, purpose: Token.Purpose, expiry: int | float
 ) -> None:
-    config = CONFIG.get(purpose)
+    config = CONFIG[purpose]
 
     # Extract variables for template
-    username = user.display_name
     url = f"{settings.FRONTEND_URL}/auth/verify?token={token}&purpose={purpose}"
     expiry_display = format_expiry(expiry)
 
@@ -50,7 +42,6 @@ def send_link(
     html_content = render_to_string(
         "emails/verification_link.html",
         {
-            "username": username,
             "content": config["content"],
             "url": url,
             "expiry": expiry_display,
@@ -59,51 +50,31 @@ def send_link(
     text_content = generate_plain_text_from_html(html_content)
 
     dispatch_mail(
-        recipients=[user.email],
+        recipients=[email],
         subject=subject,
         html_content=html_content,
         text_content=text_content,
     )
 
 
-def generate_link(user: User, purpose: Token.Purpose, expiry: int | float) -> None:
+def generate_link(email: str, purpose: Token.Purpose, expiry: int | float) -> None:
+    user = get_user_by_email(email)
     # Invalidate all previous unused tokens
     invalidate_past_tokens(user, purpose)
-
-    try:
+    with handle_mailing_errors():
         # The newest token is used for validation
         token, hashed_token = generate_token()
         save_token(hashed_token, user, purpose, expiry)
-        send_link(user, token, purpose, expiry)
-    except (TemplateDoesNotExist, TemplateSyntaxError) as template_error:
-        # Your template is missing or broken
-        logger.error(f"Template error: {template_error}")
-        raise MailingServiceFailure
-    except SMTPAuthenticationError as auth_error:
-        # Email credentials are wrong
-        logger.error(f"Authentication error: {auth_error}")
-        raise MailingServiceFailure
-    except SMTPConnectError as connect_error:
-        # Can't reach the mail server
-        logger.error(f"Connection error: {connect_error}")
-        raise MailingServiceFailure
-    except SMTPException as unexpected_smtp_error:
-        # Catch-all for any other SMTP failure
-        logger.error(f"Unexpected error: {unexpected_smtp_error}")
-        raise MailingServiceFailure
-    except DatabaseError as db_error:
-        # Token failed to save
-        logger.exception(f"Database error: {db_error}")  # Trace failed queries
-        raise MailingServiceFailure
+        send_link(email, token, purpose, expiry)
 
 
-def send_email_verification_link(user: User) -> None:
-    generate_link(user, Token.Purpose.SIGN_UP, expiry=24)
+def send_email_verification_link(email: str) -> None:
+    generate_link(email, Token.Purpose.SIGN_UP, expiry=24)
 
 
-def send_password_reset_link(user: User) -> None:
-    generate_link(user, Token.Purpose.PASSWORD_RESET, expiry=1)
+def send_password_reset_link(email: str) -> None:
+    generate_link(email, Token.Purpose.PASSWORD_RESET, expiry=1)
 
 
-def send_email_change_link(user: User) -> None:
-    generate_link(user, Token.Purpose.EMAIL_CHANGE, expiry=24)
+def send_email_change_link(email: str) -> None:
+    generate_link(email, Token.Purpose.EMAIL_CHANGE, expiry=24)
