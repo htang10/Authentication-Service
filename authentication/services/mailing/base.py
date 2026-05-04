@@ -27,6 +27,11 @@ def dispatch_mail(
 
 @contextmanager
 def handle_mailing_errors():
+    """A context manager that catches template errors, SMTP errors and database error.
+
+    Raises:
+        MailingServiceFailure
+    """
     try:
         yield
     except (TemplateDoesNotExist, TemplateSyntaxError) as e:
