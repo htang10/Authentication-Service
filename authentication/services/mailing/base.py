@@ -1,5 +1,15 @@
+import logging
+from contextlib import contextmanager
+from smtplib import SMTPAuthenticationError, SMTPConnectError, SMTPException
+
 from django.conf import settings
 from django.core.mail import EmailMultiAlternatives
+from django.db import DatabaseError
+from django.template.exceptions import TemplateDoesNotExist, TemplateSyntaxError
+
+from authentication.exceptions import MailingServiceFailure
+
+logger = logging.getLogger(__name__)
 
 
 def dispatch_mail(
@@ -13,3 +23,24 @@ def dispatch_mail(
     )
     msg.attach_alternative(html_content, "text/html")
     msg.send()
+
+
+@contextmanager
+def handle_mailing_errors():
+    try:
+        yield
+    except (TemplateDoesNotExist, TemplateSyntaxError) as e:
+        logger.error(f"Template error: {e}")
+        raise MailingServiceFailure
+    except SMTPAuthenticationError as e:
+        logger.error(f"Authentication error: {e}")
+        raise MailingServiceFailure
+    except SMTPConnectError as e:
+        logger.error(f"Connection error: {e}")
+        raise MailingServiceFailure
+    except SMTPException as e:
+        logger.error(f"Unexpected SMTP error: {e}")
+        raise MailingServiceFailure
+    except DatabaseError as e:
+        logger.exception(f"Database error: {e}")
+        raise MailingServiceFailure
